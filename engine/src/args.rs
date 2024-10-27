@@ -15,6 +15,9 @@ pub struct Args {
 	/// Display the number of iterations taken to solve the board
 	#[arg(short, long)]
 	pub attempt: bool,
+	/// Use heuristic search to solve the board
+	#[arg(short = 'H', long)]
+	pub heuristic: bool,
 }
 
 impl Args {
@@ -24,7 +27,12 @@ impl Args {
 		println!("Initial State:\n{board}\n");
 
 		let start = std::time::Instant::now();
-		let (solved, attemtps) = Solver::solve(&mut board);
+
+		let (solved, attemtps) = match self.heuristic {
+			true => Solver::heuristic_search(&mut board),
+			false => Solver::solve(&mut board),
+		};
+
 		let elapsed = start.elapsed().as_micros();
 
 		match solved {
