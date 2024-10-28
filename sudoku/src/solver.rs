@@ -1,7 +1,7 @@
 use crate::board::{
 	digit::DigitConsts,
 	file_rank::{Files, Ranks},
-	square::{GetSquare, SquareConsts, Squares},
+	square::{GetSquare, SquareConsts},
 	Board, Digit, File, Rank, Square,
 };
 
@@ -60,9 +60,8 @@ impl Solver {
 	}
 
 	fn _heuristic_search(board: &mut Board, attempts: &mut usize) {
-		let mut heuristic: Option<Vec<Digit>> = None;
+		let mut heuristic: Option<(Vec<Digit>, Square)> = None;
 		let mut heuristic_count = usize::MAX;
-		let mut heuristic_square = Square::A1;
 
 		for square in usize::SQUARE_RANGE {
 			if !board.square_is_empty(square) {
@@ -80,15 +79,14 @@ impl Solver {
 			}
 
 			if digits_count > 0 && digits_count < heuristic_count {
-				heuristic = Some(digits);
+				heuristic = Some((digits, square));
 				heuristic_count = digits_count;
-				heuristic_square = square;
 			}
 		}
 
-		if let Some(heuristic) = heuristic {
+		if let Some((heuristic, square)) = heuristic {
 			for digit in heuristic {
-				board.set_digit(digit, heuristic_square);
+				board.set_digit(digit, square);
 				*attempts += 1;
 
 				Self::_heuristic_search(board, attempts);
@@ -97,7 +95,7 @@ impl Solver {
 					break;
 				}
 
-				board.unset_digit(digit, heuristic_square);
+				board.unset_digit(digit, square);
 			}
 		}
 	}
